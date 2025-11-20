@@ -1,0 +1,269 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "ADMIN",
+      "password": "ADMIN123",
+      "role": "admin",
+      "name": "Gaby",
+      "language": "rw"
+    },
+    {
+      "id": 1762851995512,
+      "name": "didier",
+      "username": "gael",
+      "password": "gael123",
+      "role": "standard-user"
+    }
+  ],
+  "clients": [
+    {
+      "id": 1763107357057,
+      "loan": 24000,
+      "name": "mama chanse",
+      "phone": "+25078947758932",
+      "idNumber": "11999700388466845",
+      "insurerId": "1190038858836653"
+    }
+  ],
+  "products": [
+    {
+      "id": 1763107413269,
+      "name": "amavuta",
+      "price": 35000,
+      "type": "jerrycan",
+      "category": "Liquids",
+      "packageSize": "300",
+      "packageUnit": "liter",
+      "stock": 18
+    },
+    {
+      "id": 1763107554804,
+      "name": "luki",
+      "price": 2500,
+      "type": "kg",
+      "category": "Grains & Food",
+      "packageSize": "25",
+      "packageUnit": "kg",
+      "stock": 10
+    },
+    {
+      "id": 1763107682493,
+      "name": "amazi",
+      "price": 15000,
+      "type": "carton",
+      "category": "Liquids",
+      "packageSize": "12",
+      "packageUnit": "bottles",
+      "stock": 9
+    },
+    {
+      "id": 1763107800181,
+      "name": "babycare nto",
+      "price": 3000,
+      "type": "piece",
+      "category": "General Goods",
+      "packageSize": "24",
+      "packageUnit": "pieces",
+      "stock": 20
+    },
+    {
+      "id": 1763107882366,
+      "name": "adma marie(detail)",
+      "price": 100,
+      "type": "carton",
+      "category": "General Goods",
+      "packageSize": "50",
+      "packageUnit": "pieces",
+      "stock": 10
+    },
+    {
+      "id": 1763107999488,
+      "name": "vinit marie(detail)",
+      "price": 100,
+      "type": "carton",
+      "category": "General Goods",
+      "packageSize": "50",
+      "packageUnit": "pieces",
+      "stock": 10
+    },
+    {
+      "id": 1763108098747,
+      "name": "adma marie",
+      "price": 4500,
+      "type": "carton",
+      "category": "General Goods",
+      "packageSize": "",
+      "packageUnit": "units",
+      "stock": 14
+    },
+    {
+      "id": 1763108143444,
+      "name": "vinit marie",
+      "price": 4500,
+      "type": "carton",
+      "category": "General Goods",
+      "packageSize": "",
+      "packageUnit": "units",
+      "stock": 6
+    },
+    {
+      "id": 1763108956372,
+      "name": "umuceli tanzania",
+      "price": 28500,
+      "type": "sack",
+      "category": "Grains & Food",
+      "packageSize": "",
+      "packageUnit": "kg",
+      "stock": 4
+    }
+  ],
+  "transactions": [
+    {
+      "id": 1763108366584,
+      "clientId": 1763107357057,
+      "items": [
+        {
+          "productId": 1763107682493,
+          "name": "amazi",
+          "price": 15000,
+          "quantity": 1,
+          "type": "carton",
+          "packageSize": "12",
+          "packageUnit": "bottles"
+        }
+      ],
+      "total": 15000,
+      "paid": 15000,
+      "loan": 0,
+      "date": "2025-11-14T08:19:26.584Z",
+      "userId": 1,
+      "type": "sale"
+    },
+    {
+      "id": 1763108398204,
+      "clientId": 1763107357057,
+      "items": [
+        {
+          "productId": 1763108098747,
+          "name": "adma marie",
+          "price": 4500,
+          "quantity": 1,
+          "type": "carton",
+          "packageSize": "",
+          "packageUnit": "units"
+        },
+        {
+          "productId": 1763108143444,
+          "name": "vinit marie",
+          "price": 4500,
+          "quantity": 1,
+          "type": "carton",
+          "packageSize": "",
+          "packageUnit": "units"
+        },
+        {
+          "productId": 1763107800181,
+          "name": "babycare nto",
+          "price": 3000,
+          "quantity": 1,
+          "type": "carton",
+          "packageSize": "24",
+          "packageUnit": "pieces"
+        },
+        {
+          "productId": 1763107465787,
+          "name": "umuceli",
+          "price": 30000,
+          "quantity": 1,
+          "type": "sack",
+          "packageSize": "25",
+          "packageUnit": "kg"
+        }
+      ],
+      "total": 42000,
+      "paid": 42000,
+      "loan": 0,
+      "date": "2025-11-14T08:19:58.204Z",
+      "userId": 1,
+      "type": "sale"
+    },
+    {
+      "id": 1763634702923,
+      "clientId": 1763107357057,
+      "items": [
+        {
+          "productId": 1763107413269,
+          "name": "amavuta",
+          "price": 35000,
+          "quantity": 2,
+          "type": "jerrycan",
+          "packageSize": "300",
+          "packageUnit": "liter"
+        },
+        {
+          "productId": 1763107800181,
+          "name": "babycare nto",
+          "price": 3000,
+          "quantity": 3,
+          "type": "piece",
+          "packageSize": "24",
+          "packageUnit": "pieces"
+        },
+        {
+          "productId": 1763107682493,
+          "name": "amazi",
+          "price": 15000,
+          "quantity": 3,
+          "type": "carton",
+          "packageSize": "12",
+          "packageUnit": "bottles"
+        }
+      ],
+      "total": 124000,
+      "paid": 100000,
+      "loan": 24000,
+      "date": "2025-11-20T10:31:42.923Z",
+      "userId": 1,
+      "type": "sale"
+    }
+  ],
+  "notifications": [
+    {
+      "id": 1763108867048,
+      "message": "📦 Stock updated: babycare nto - 1 → 20",
+      "type": "stock",
+      "timestamp": "2025-11-14T08:27:47.048Z"
+    },
+    {
+      "id": 1763108880661,
+      "message": "Product umuceli deleted",
+      "type": "warning",
+      "timestamp": "2025-11-14T08:28:00.661Z"
+    },
+    {
+      "id": 1763634496178,
+      "message": "Client Samuel deleted",
+      "type": "warning",
+      "timestamp": "2025-11-20T10:28:16.178Z"
+    },
+    {
+      "id": 1763634498895,
+      "message": "Client Hussein deleted",
+      "type": "warning",
+      "timestamp": "2025-11-20T10:28:18.895Z"
+    },
+    {
+      "id": 1763634702923,
+      "message": "⚠️ New loan: mama chanse - 24000 FRW",
+      "type": "warning",
+      "timestamp": "2025-11-20T10:31:42.923Z"
+    },
+    {
+      "id": 1763634702923,
+      "message": "💰 Sale: mama chanse - 100000 FRW paid",
+      "type": "sale",
+      "timestamp": "2025-11-20T10:31:42.923Z"
+    }
+  ]
+}
