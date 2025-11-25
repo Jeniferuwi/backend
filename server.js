@@ -7,20 +7,15 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-import express from 'express';
-import cors from 'cors';
-
 const app = express();
 
-// ✅ USE THIS SIMPLE CORS CONFIGURATION:
+// ✅ FIXED CORS CONFIGURATION
 app.use(cors({
   origin: true,  // This automatically allows the request origin
   credentials: true
 }));
 
 app.use(express.json());
-
-// ... rest of your server code continues here
 
 // File-based data storage
 const DATA_FILE = path.join(__dirname, 'data.json');
@@ -86,30 +81,6 @@ const auth = (req, res, next) => {
 const checkSabbath = (req, res, next) => {
   // Temporarily disable Sabbath check
   next();
-  
-  /*
-  const now = new Date();
-  const day = now.getDay();
-  const hours = now.getHours();
-  const minutes = now.getMinutes();
-  
-  const currentTimeInMinutes = (hours * 60) + minutes;
-  const fridayStart = 18 * 60;
-  const saturdayEnd = (18 * 60) + 30;
-  
-  const isSabbath = 
-    (day === 5 && currentTimeInMinutes >= fridayStart) ||
-    (day === 6 && currentTimeInMinutes <= saturdayEnd);
-  
-  if (isSabbath) {
-    return res.status(403).json({
-      error: 'Sabbath Time - System Unavailable', 
-      message: 'The system is unavailable from Friday 18:00 to Saturday 18:30'
-    });
-  }
-  
-  next();
-  */
 };
 
 // Root route
