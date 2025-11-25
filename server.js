@@ -7,19 +7,20 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+import express from 'express';
+import cors from 'cors';
+
 const app = express();
 
-// Fix CORS for Netlify
+// ✅ USE THIS SIMPLE CORS CONFIGURATION:
 app.use(cors({
-  origin: [
-    'https://mannager.netlify.app',
-    'https://mmanager.netlify.app',
-    'http://localhost:5173'
-  ],
+  origin: true,  // This automatically allows the request origin
   credentials: true
 }));
 
 app.use(express.json());
+
+// ... rest of your server code continues here
 
 // File-based data storage
 const DATA_FILE = path.join(__dirname, 'data.json');
