@@ -693,6 +693,175 @@ app.get('/api/products/low-stock', auth, (req, res) => {
   res.json(lowStockProducts);
 });
 
+// Advanced Analytics Endpoints
+app.get('/api/analytics/sales-overview', auth, (req, res) => {
+  const { period = 'monthly' } = req.query; // daily, weekly, monthly, yearly
+  
+  const salesData = calculateSalesByPeriod(data.transactions, period);
+  const topProducts = getTopSellingProducts(data.transactions, data.products);
+  const clientStats = getClientStatistics(data.transactions, data.clients);
+  
+  res.json({
+    salesOverview: salesData,
+    topProducts,
+    clientStats,
+    summary: {
+      totalRevenue: salesData.reduce((sum, item) => sum + item.revenue, 0),
+      totalTransactions: salesData.reduce((sum, item) => sum + item.transactions, 0),
+      averageSale: calculateAverageSale(data.transactions)
+    }
+  });
+});
+
+app.get('/api/analytics/financial-reports', auth, (req, res) => {
+  const { startDate, endDate } = req.query;
+  
+  const report = generateFinancialReport(data.transactions, startDate, endDate);
+  res.json(report);
+});
+
+app.get('/api/analytics/export-report', auth, (req, res) => {
+  const { type, format = 'json' } = req.query; // type: sales, inventory, financial
+  
+  const report = generateExportReport(data, type);
+  
+  if (format === 'csv') {
+    const csv = convertToCSV(report);
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename=${type}-report-${Date.now()}.csv`);
+    return res.send(csv);
+  }
+  
+  res.json(report);
+});
+
+// Helper Functions
+function calculateSalesByPeriod(transactions, period) {
+  const sales = {};
+  const now = new Date();
+  
+  transactions.filter(t => t.type === 'sale').forEach(transaction => {
+    const date = new Date(transaction.date);
+    let key;
+    
+    switch (period) {
+      case 'daily':
+        key = date.toDateString();
+        break;
+      case 'weekly':
+        const weekStart = new Date(date);
+        weekStart.setDate(date.getDate() - date.getDay());
+        key = `Week ${weekStart.toDateString()}`;
+        break;
+      case 'monthly':
+        key = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+        break;
+      case 'yearly':
+        key = date.getFullYear().toString();
+        break;
+    }
+    
+    if (!sales[key]) {
+      sales[key] = { revenue: 0, transactions: 0, date: key };
+    }
+    
+    sales[key].revenue += transaction.paid;
+    sales[key].transactions += 1;
+  });
+  
+  return Object.values(sales).sort((a, b) => new Date(a.date) - new Date(b.date));
+}
+
+function getTopSellingProducts(transactions, products) {
+  const productSales = {};
+  
+  transactions.filter(t => t.type === 'sale').forEach(transaction => {
+    transaction.items.forEach(item => {
+      if (!productSales[item.productId]) {
+        productSales[item.productId] = {
+          productId: item.productId,
+          productName: item.name,
+          quantity: 0,
+          revenue: 0
+        };
+      }
+      
+      productSales[item.productId].quantity += item.quantity;
+      productSales[item.productId].revenue += item.price * item.quantity;
+    });
+  });
+  
+  return Object.values(productSales)
+    .sort((a, b) => b.revenue - a.revenue)
+    .slice(0, 10); // Top 10
+}
+
+function getClientStatistics(transactions, clients) {
+  const clientStats = {};
+  
+  transactions.filter(t => t.type === 'sale').forEach(transaction => {
+    const clientId = transaction.clientId;
+    
+    if (!clientStats[clientId]) {
+      const client = clients.find(c => c.id === clientId);
+      clientStats[clientId] = {
+        clientId,
+        clientName: client?.name || 'Unknown',
+        totalSpent: 0,
+        transactions: 0,
+        lastPurchase: transaction.date
+      };
+    }
+    
+    clientStats[clientId].totalSpent += transaction.paid;
+    clientStats[clientId].transactions += 1;
+    
+    if (new Date(transaction.date) > new Date(clientStats[clientId].lastPurchase)) {
+      clientStats[clientId].lastPurchase = transaction.date;
+    }
+  });
+  
+  return Object.values(clientStats).sort((a, b) => b.totalSpent - a.totalSpent);
+}
+
+function calculateAverageSale(transactions) {
+  const sales = transactions.filter(t => t.type === 'sale');
+  if (sales.length === 0) return 0;
+  
+  const totalRevenue = sales.reduce((sum, t) => sum + t.paid, 0);
+  return totalRevenue / sales.length;
+}
+
+function generateFinancialReport(transactions, startDate, endDate) {
+  const filteredTransactions = transactions.filter(t => {
+    const transactionDate = new Date(t.date);
+    const start = startDate ? new Date(startDate) : new Date(0);
+    const end = endDate ? new Date(endDate) : new Date();
+    return transactionDate >= start && transactionDate <= end;
+  });
+  
+  const sales = filteredTransactions.filter(t => t.type === 'sale');
+  const loanPayments = filteredTransactions.filter(t => t.type === 'loan_payment');
+  
+  return {
+    period: { startDate, endDate },
+    revenue: {
+      totalSales: sales.reduce((sum, t) => sum + t.paid, 0),
+      totalLoanPayments: loanPayments.reduce((sum, t) => sum + t.amount, 0),
+      grossRevenue: sales.reduce((sum, t) => sum + t.paid, 0) + loanPayments.reduce((sum, t) => sum + t.amount, 0)
+    },
+    transactions: {
+      totalSales: sales.length,
+      totalLoanPayments: loanPayments.length,
+      averageSaleValue: sales.length > 0 ? sales.reduce((sum, t) => sum + t.paid, 0) / sales.length : 0
+    },
+    loans: {
+      activeLoans: data.clients.filter(c => c.loan > 0).length,
+      totalOutstanding: data.clients.reduce((sum, c) => sum + c.loan, 0)
+    }
+  };
+}
+
 app.listen(3000, () => {
   console.log('✅ Server running on http://localhost:3000');
   console.log('💾 Data will be saved in: ' + path.resolve(DATA_FILE));

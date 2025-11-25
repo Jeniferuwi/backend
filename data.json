@@ -19,11 +19,51 @@
   "clients": [
     {
       "id": 1763107357057,
-      "loan": 24000,
+      "loan": 0,
       "name": "mama chanse",
       "phone": "+25078947758932",
       "idNumber": "11999700388466845",
       "insurerId": "1190038858836653"
+    },
+    {
+      "id": 1764062635094,
+      "loan": 0,
+      "name": "Akimana",
+      "phone": "0792084004",
+      "idNumber": "12990037736785",
+      "insurerId": "1200947328839958"
+    },
+    {
+      "id": 1764062655669,
+      "loan": 0,
+      "name": "hagayi",
+      "phone": "0792084004",
+      "idNumber": "12990037736785",
+      "insurerId": "1200947328839958"
+    },
+    {
+      "id": 1764062686744,
+      "loan": 0,
+      "name": "zekariya",
+      "phone": "0782661041",
+      "idNumber": "12990037736785",
+      "insurerId": "1200947328839958"
+    },
+    {
+      "id": 1764062699981,
+      "loan": 1000,
+      "name": "Malaki",
+      "phone": "0792084004",
+      "idNumber": "12990037736785",
+      "insurerId": "1200947328839958"
+    },
+    {
+      "id": 1764062717612,
+      "loan": 0,
+      "name": "matayo",
+      "phone": "068883639455",
+      "idNumber": "",
+      "insurerId": ""
     }
   ],
   "products": [
@@ -226,6 +266,171 @@
       "date": "2025-11-20T10:31:42.923Z",
       "userId": 1,
       "type": "sale"
+    },
+    {
+      "id": 1764062564415,
+      "clientId": 1763107357057,
+      "type": "loan_payment",
+      "amount": 24000,
+      "previousLoan": 24000,
+      "newLoan": 0,
+      "date": "2025-11-25T09:22:44.415Z",
+      "userId": 1
+    },
+    {
+      "id": 1764062781981,
+      "clientId": 1764062717612,
+      "items": [
+        {
+          "productId": 1763107413269,
+          "name": "amavuta",
+          "price": 35000,
+          "quantity": 3,
+          "type": "jerrycan",
+          "packageSize": "300",
+          "packageUnit": "liter"
+        },
+        {
+          "productId": 1763107554804,
+          "name": "luki",
+          "price": 2500,
+          "quantity": 3,
+          "type": "kg",
+          "packageSize": "25",
+          "packageUnit": "kg"
+        },
+        {
+          "productId": 1763107800181,
+          "name": "babycare nto",
+          "price": 3000,
+          "quantity": 3,
+          "type": "piece",
+          "packageSize": "24",
+          "packageUnit": "pieces"
+        },
+        {
+          "productId": 1763107999488,
+          "name": "vinit marie(detail)",
+          "price": 100,
+          "quantity": 3,
+          "type": "carton",
+          "packageSize": "50",
+          "packageUnit": "pieces"
+        },
+        {
+          "productId": 1763108956372,
+          "name": "umuceli tanzania",
+          "price": 28500,
+          "quantity": 2,
+          "type": "sack",
+          "packageSize": "",
+          "packageUnit": "kg"
+        }
+      ],
+      "total": 178800,
+      "paid": 178800,
+      "loan": 0,
+      "date": "2025-11-25T09:26:21.981Z",
+      "userId": 1,
+      "type": "sale"
+    },
+    {
+      "id": 1764062805103,
+      "clientId": 1764062699981,
+      "items": [
+        {
+          "productId": 1763107413269,
+          "name": "amavuta",
+          "price": 35000,
+          "quantity": 1,
+          "type": "jerrycan",
+          "packageSize": "300",
+          "packageUnit": "liter"
+        },
+        {
+          "productId": 1763107682493,
+          "name": "amazi",
+          "price": 15000,
+          "quantity": 2,
+          "type": "carton",
+          "packageSize": "12",
+          "packageUnit": "bottles"
+        },
+        {
+          "productId": 1763108956372,
+          "name": "umuceli tanzania",
+          "price": 28500,
+          "quantity": 4,
+          "type": "sack",
+          "packageSize": "",
+          "packageUnit": "kg"
+        }
+      ],
+      "total": 179000,
+      "paid": 170000,
+      "loan": 9000,
+      "date": "2025-11-25T09:26:45.103Z",
+      "userId": 1,
+      "type": "sale"
+    },
+    {
+      "id": 1764062845738,
+      "clientId": 1764062635094,
+      "items": [
+        {
+          "productId": 1763108143444,
+          "name": "vinit marie",
+          "price": 4500,
+          "quantity": 3,
+          "type": "carton",
+          "packageSize": "",
+          "packageUnit": "units"
+        },
+        {
+          "productId": 1763107682493,
+          "name": "amazi",
+          "price": 15000,
+          "quantity": 3,
+          "type": "carton",
+          "packageSize": "12",
+          "packageUnit": "bottles"
+        },
+        {
+          "productId": 1763107413269,
+          "name": "amavuta",
+          "price": 35000,
+          "quantity": 3,
+          "type": "jerrycan",
+          "packageSize": "300",
+          "packageUnit": "liter"
+        }
+      ],
+      "total": 163500,
+      "paid": 100000,
+      "loan": 63500,
+      "date": "2025-11-25T09:27:25.738Z",
+      "userId": 1,
+      "type": "sale"
+    },
+    {
+      "id": 1764062913133,
+      "clientId": 1764062635094,
+      "type": "loan_payment",
+      "amount": 63500,
+      "previousLoan": 63500,
+      "newLoan": 0,
+      "date": "2025-11-25T09:28:33.133Z",
+      "userId": 1
+    },
+    {
+      "id": 1764062921838,
+      "clientId": 1764062699981,
+      "type": "loan_payment",
+      "amount": 8000,
+      "previousLoan": 9000,
+      "newLoan": 1000,
+      "date": "2025-11-25T09:28:41.838Z",
+      "userId": 1
     }
   ],
   "notifications": [
@@ -264,6 +469,84 @@
       "message": "💰 Sale: mama chanse - 100000 FRW paid",
       "type": "sale",
       "timestamp": "2025-11-20T10:31:42.923Z"
+    },
+    {
+      "id": 1764062564415,
+      "message": "✅ Loan payment: mama chanse paid 24000 FRW",
+      "type": "success",
+      "timestamp": "2025-11-25T09:22:44.415Z"
+    },
+    {
+      "id": 1764062635094,
+      "message": "Client Akimana added",
+      "type": "client",
+      "timestamp": "2025-11-25T09:23:55.094Z"
+    },
+    {
+      "id": 1764062655669,
+      "message": "Client hagayi added",
+      "type": "client",
+      "timestamp": "2025-11-25T09:24:15.669Z"
+    },
+    {
+      "id": 1764062686744,
+      "message": "Client zekariya added",
+      "type": "client",
+      "timestamp": "2025-11-25T09:24:46.744Z"
+    },
+    {
+      "id": 1764062699981,
+      "message": "Client Malaki added",
+      "type": "client",
+      "timestamp": "2025-11-25T09:24:59.981Z"
+    },
+    {
+      "id": 1764062717612,
+      "message": "Client matayo added",
+      "type": "client",
+      "timestamp": "2025-11-25T09:25:17.612Z"
+    },
+    {
+      "id": 1764062781981,
+      "message": "💰 Sale: matayo - 178800 FRW paid",
+      "type": "sale",
+      "timestamp": "2025-11-25T09:26:21.981Z"
+    },
+    {
+      "id": 1764062805103,
+      "message": "⚠️ New loan: Malaki - 9000 FRW",
+      "type": "warning",
+      "timestamp": "2025-11-25T09:26:45.103Z"
+    },
+    {
+      "id": 1764062805104,
+      "message": "💰 Sale: Malaki - 170000 FRW paid",
+      "type": "sale",
+      "timestamp": "2025-11-25T09:26:45.104Z"
+    },
+    {
+      "id": 1764062845738,
+      "message": "⚠️ New loan: Akimana - 63500 FRW",
+      "type": "warning",
+      "timestamp": "2025-11-25T09:27:25.738Z"
+    },
+    {
+      "id": 1764062845738,
+      "message": "💰 Sale: Akimana - 100000 FRW paid",
+      "type": "sale",
+      "timestamp": "2025-11-25T09:27:25.738Z"
+    },
+    {
+      "id": 1764062913133,
+      "message": "✅ Loan payment: Akimana paid 63500 FRW",
+      "type": "success",
+      "timestamp": "2025-11-25T09:28:33.133Z"
+    },
+    {
+      "id": 1764062921838,
+      "message": "✅ Loan payment: Malaki paid 8000 FRW",
+      "type": "success",
+      "timestamp": "2025-11-25T09:28:41.838Z"
     }
   ]
 }
