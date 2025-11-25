@@ -66,33 +66,28 @@ const auth = (req, res, next) => {
 
 // Sabbath check
 // Enhanced Sabbath check
+// Enhanced Sabbath check
 const checkSabbath = (req, res, next) => {
+  // Temporarily disable Sabbath check for testing
+  // return next();
+  
   const now = new Date();
-  const day = now.getDay(); // 0 = Sunday, 5 = Friday, 6 = Saturday
+  const day = now.getDay();
   const hours = now.getHours();
   const minutes = now.getMinutes();
   
-  // Convert current time to minutes for easier comparison
   const currentTimeInMinutes = (hours * 60) + minutes;
+  const fridayStart = 18 * 60;
+  const saturdayEnd = (18 * 60) + 30;
   
-  // Friday: 18:00 (1080 minutes) until Saturday: 18:30 (1110 minutes)
-  const fridayStart = 18 * 60; // 18:00 = 1080 minutes
-  const saturdayEnd = (18 * 60) + 30; // 18:30 = 1110 minutes
-  
-  // Check if it's Friday after 18:00 OR Saturday before 18:30
   const isSabbath = 
-    (day === 5 && currentTimeInMinutes >= fridayStart) || // Friday after 18:00
-    (day === 6 && currentTimeInMinutes <= saturdayEnd);   // Saturday before 18:30
+    (day === 5 && currentTimeInMinutes >= fridayStart) ||
+    (day === 6 && currentTimeInMinutes <= saturdayEnd);
   
   if (isSabbath) {
-    console.log('🔒 Sabbath restriction active - Blocking operation');
-    console.log(`Current time: ${now.toString()}`);
-    console.log(`Day: ${day}, Hours: ${hours}, Minutes: ${minutes}`);
     return res.status(403).json({
       error: 'Sabbath Time - System Unavailable', 
-      message: 'The system is unavailable from Friday 18:00 to Saturday 18:30',
-      currentTime: now.toString(),
-      restriction: 'Friday 18:00 - Saturday 18:30'
+      message: 'The system is unavailable from Friday 18:00 to Saturday 18:30'
     });
   }
   
@@ -100,26 +95,47 @@ const checkSabbath = (req, res, next) => {
 };
 
 // Login
+// Login route - fix potential issues
 app.post('/api/login', checkSabbath, (req, res) => {
-  const {username, password} = req.body;
-  const user = data.users.find(u => u.username === username && u.password === password);
-  if (!user) return res.status(401).json({error: 'Invalid credentials'});
-  
-  const token = Buffer.from(JSON.stringify({
-    id: user.id, 
-    role: user.role,
-    name: user.name
-  })).toString('base64');
-  
-  res.json({
-    token, 
-    user: {
-      id: user.id, 
-      name: user.name, 
-      role: user.role, 
-      language: user.language
+  try {
+    const { username, password } = req.body;
+    
+    // Add validation
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password required' });
     }
-  });
+    
+    console.log('Login attempt:', username);
+    
+    const user = data.users.find(u => u.username === username && u.password === password);
+    
+    if (!user) {
+      console.log('Login failed for user:', username);
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    
+    const token = Buffer.from(JSON.stringify({
+      id: user.id, 
+      role: user.role,
+      name: user.name
+    })).toString('base64');
+    
+    console.log('Login successful for:', user.name);
+    
+    res.json({
+      token, 
+      user: {
+        id: user.id, 
+        name: user.name, 
+        role: user.role, 
+        language: user.language
+      }
+    });
+    
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error during login' });
+  }
 });
 
 // Dashboard
