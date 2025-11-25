@@ -2,19 +2,27 @@ import express from 'express';
 import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
+
+// Fix CORS for Netlify
 app.use(cors({
   origin: [
     'https://mannager.netlify.app',
-    'http://localhost:5173',
-    'https://mmanager.netlify.app'
+    'https://mmanager.netlify.app',
+    'http://localhost:5173'
   ],
   credentials: true
 }));
 
+app.use(express.json());
+
 // File-based data storage
-const DATA_FILE = './data.json';
+const DATA_FILE = path.join(__dirname, 'data.json');
 
 // Load data from file
 const loadData = () => {
@@ -29,7 +37,16 @@ const loadData = () => {
   
   // Default data if file doesn't exist
   return {
-    users: [{id:1, username:'ADMIN', password:'ADMIN123', role:'admin', name:'System Admin', language:'rw'}],
+    users: [
+      {
+        id: 1, 
+        username: 'ADMIN', 
+        password: 'ADMIN123', 
+        role: 'admin', 
+        name: 'System Admin', 
+        language: 'rw'
+      }
+    ],
     clients: [],
     products: [],
     transactions: [],
@@ -64,13 +81,12 @@ const auth = (req, res, next) => {
   }
 };
 
-// Sabbath check
-// Enhanced Sabbath check
-// Enhanced Sabbath check
+// Sabbath check - temporarily disabled for testing
 const checkSabbath = (req, res, next) => {
-  // Temporarily disable Sabbath check for testing
-  // return next();
+  // Temporarily disable Sabbath check
+  next();
   
+  /*
   const now = new Date();
   const day = now.getDay();
   const hours = now.getHours();
@@ -92,48 +108,69 @@ const checkSabbath = (req, res, next) => {
   }
   
   next();
+  */
 };
 
-// Login
-// Login route - fix potential issues
-app.post('/api/login', checkSabbath, (req, res) => {
+// Root route
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Shop Manager Backend API',
+    status: 'running',
+    version: '1.0.0'
+  });
+});
+
+// Fixed Login Route
+app.post('/api/login', (req, res) => {
+  console.log('🔐 Login attempt received');
+  
   try {
     const { username, password } = req.body;
     
-    // Add validation
+    // Check if request body exists
+    if (!req.body) {
+      return res.status(400).json({ error: 'No data received' });
+    }
+    
+    // Validate input
     if (!username || !password) {
       return res.status(400).json({ error: 'Username and password required' });
     }
     
-    console.log('Login attempt:', username);
+    console.log('📧 Login attempt for:', username);
     
+    // Find user
     const user = data.users.find(u => u.username === username && u.password === password);
     
     if (!user) {
-      console.log('Login failed for user:', username);
+      console.log('❌ Login failed for:', username);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     
-    const token = Buffer.from(JSON.stringify({
+    console.log('✅ Login successful for:', user.name);
+    
+    // Create token
+    const tokenData = {
       id: user.id, 
       role: user.role,
       name: user.name
-    })).toString('base64');
+    };
     
-    console.log('Login successful for:', user.name);
+    const token = Buffer.from(JSON.stringify(tokenData)).toString('base64');
     
+    // Send response
     res.json({
       token, 
       user: {
         id: user.id, 
         name: user.name, 
         role: user.role, 
-        language: user.language
+        language: user.language || 'rw'
       }
     });
     
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('💥 Login error:', error);
     res.status(500).json({ error: 'Internal server error during login' });
   }
 });
@@ -161,6 +198,7 @@ app.get('/api/dashboard', auth, (req, res) => {
       notifications: notifications || []
     });
   } catch (error) {
+    console.error('Dashboard error:', error);
     res.json({
       dailyIncome: 0,
       weeklyIncome: 0,
@@ -172,7 +210,7 @@ app.get('/api/dashboard', auth, (req, res) => {
   }
 });
 
-// Users - Only admin can create users
+// Users
 app.get('/api/users', auth, (req, res) => {
   res.json(data.users.map(({password, ...user}) => user));
 });
@@ -200,7 +238,7 @@ app.post('/api/users', auth, checkSabbath, (req, res) => {
   res.json({id: user.id, name: user.name, username: user.username, role: user.role});
 });
 
-// Enhanced Clients with ID and insurer
+// Clients
 app.get('/api/clients', auth, (req, res) => {
   res.json(data.clients);
 });
@@ -224,7 +262,7 @@ app.post('/api/clients', auth, checkSabbath, (req, res) => {
   res.json(client);
 });
 
-// Enhanced Products with package pricing
+// Products
 app.get('/api/products', auth, (req, res) => {
   res.json(data.products);
 });
@@ -240,21 +278,11 @@ app.post('/api/products', auth, checkSabbath, (req, res) => {
   res.json(product);
 });
 
-// Enhanced Sales with package calculation
+// Sales
 app.post('/api/transactions', auth, checkSabbath, (req, res) => {
   const {clientId, items, paid} = req.body;
   const client = data.clients.find(c => c.id === clientId);
   if (!client) return res.status(404).json({error: 'Client not found'});
-  
-  // Check if client has existing loan
-  if (client.loan > 0) {
-    const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const loan = total - paid;
-    
-    if (loan > 0) {
-      return res.status(400).json({error: 'Client has existing loan - cannot add new loan'});
-    }
-  }
   
   const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const loan = total - paid;
@@ -294,7 +322,7 @@ app.post('/api/transactions', auth, checkSabbath, (req, res) => {
   res.json(transaction);
 });
 
-// Loan Payment System
+// Loan Payment
 app.post('/api/loans/pay', auth, checkSabbath, (req, res) => {
   const { clientId, amount } = req.body;
   const client = data.clients.find(c => c.id === clientId);
@@ -304,11 +332,9 @@ app.post('/api/loans/pay', auth, checkSabbath, (req, res) => {
   if (amount <= 0) return res.status(400).json({error: 'Invalid payment amount'});
   if (amount > client.loan) return res.status(400).json({error: 'Payment exceeds loan amount'});
 
-  // Update client loan
   const previousLoan = client.loan;
   client.loan -= amount;
   
-  // Record transaction
   const transaction = {
     id: Date.now(),
     clientId,
@@ -322,7 +348,6 @@ app.post('/api/loans/pay', auth, checkSabbath, (req, res) => {
   
   data.transactions.push(transaction);
   
-  // Add notification
   data.notifications.push({
     id: Date.now(),
     message: `✅ Loan payment: ${client.name} paid ${amount} FRW`,
@@ -358,14 +383,11 @@ app.delete('/api/clients/:id', auth, checkSabbath, (req, res) => {
   
   const client = data.clients[clientIndex];
   
-  // Check if client has active loan
   if (client.loan > 0) {
     return res.status(400).json({error: 'Cannot delete client with active loan'});
   }
   
   data.clients.splice(clientIndex, 1);
-  
-  // Remove client's transactions
   data.transactions = data.transactions.filter(t => t.clientId !== clientId);
   
   data.notifications.push({
@@ -440,7 +462,7 @@ app.put('/api/products/:id', auth, checkSabbath, (req, res) => {
   res.json(product);
 });
 
-// Delete User (Admin only)
+// Delete User
 app.delete('/api/users/:id', auth, checkSabbath, (req, res) => {
   if (req.user.role !== 'admin') {
     return res.status(403).json({error: 'Only admin can delete users'});
@@ -453,7 +475,6 @@ app.delete('/api/users/:id', auth, checkSabbath, (req, res) => {
   
   const user = data.users[userIndex];
   
-  // Prevent deleting yourself
   if (userId === req.user.id) {
     return res.status(400).json({error: 'Cannot delete your own account'});
   }
@@ -478,7 +499,6 @@ app.put('/api/users/:id', auth, checkSabbath, (req, res) => {
   
   if (!user) return res.status(404).json({error: 'User not found'});
   
-  // Only admin can change roles
   if (req.body.role && req.user.role !== 'admin') {
     return res.status(403).json({error: 'Only admin can change roles'});
   }
@@ -496,7 +516,7 @@ app.put('/api/users/:id', auth, checkSabbath, (req, res) => {
   res.json(user);
 });
 
-// Delete Notification (Clear recent activities)
+// Delete All Notifications
 app.delete('/api/notifications', auth, (req, res) => {
   data.notifications = [];
   saveData(data);
@@ -534,13 +554,11 @@ app.put('/api/users/:id/password', auth, checkSabbath, (req, res) => {
   
   const { currentPassword, newPassword } = req.body;
   
-  // If changing own password, verify current password
   if (userId === req.user.id) {
     if (user.password !== currentPassword) {
       return res.status(400).json({error: 'Current password is incorrect'});
     }
   } else {
-    // If admin changing other user's password, require admin role
     if (req.user.role !== 'admin') {
       return res.status(403).json({error: 'Only admin can change other users passwords'});
     }
@@ -572,7 +590,7 @@ app.get('/api/user/profile', auth, (req, res) => {
   res.json(userWithoutPassword);
 });
 
-// Update user profile (name, language, etc.)
+// Update user profile
 app.put('/api/user/profile', auth, checkSabbath, (req, res) => {
   const user = data.users.find(u => u.id === req.user.id);
   if (!user) return res.status(404).json({error: 'User not found'});
@@ -595,7 +613,7 @@ app.put('/api/user/profile', auth, checkSabbath, (req, res) => {
   res.json(userWithoutPassword);
 });
 
-// Admin: Reset user password (without current password)
+// Admin: Reset user password
 app.put('/api/admin/users/:id/reset-password', auth, checkSabbath, (req, res) => {
   if (req.user.role !== 'admin') {
     return res.status(403).json({error: 'Only admin can reset passwords'});
@@ -629,12 +647,10 @@ app.put('/api/admin/users/:id/reset-password', auth, checkSabbath, (req, res) =>
 app.get('/api/clients/:id/purchases', auth, (req, res) => {
   const clientId = parseInt(req.params.id);
   
-  // Get all transactions for this client
   const clientTransactions = data.transactions
     .filter(t => t.clientId === clientId && t.type === 'sale')
-    .sort((a, b) => new Date(b.date) - new Date(a.date)); // Most recent first
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
   
-  // Format the data for frontend
   const purchaseHistory = clientTransactions.map(transaction => ({
     id: transaction.id,
     date: transaction.date,
@@ -678,7 +694,6 @@ app.put('/api/products/:id/stock', auth, checkSabbath, (req, res) => {
     return res.status(400).json({error: 'Stock cannot be negative'});
   }
   
-  // Initialize stock if not exists
   if (product.stock === undefined) {
     product.stock = 0;
   }
@@ -704,7 +719,7 @@ app.put('/api/products/:id/stock', auth, checkSabbath, (req, res) => {
 
 // Get low stock products
 app.get('/api/products/low-stock', auth, (req, res) => {
-  const lowStockThreshold = 5; // Alert when stock <= 5
+  const lowStockThreshold = 5;
   const lowStockProducts = data.products.filter(p => 
     p.stock !== undefined && p.stock <= lowStockThreshold
   );
@@ -712,52 +727,34 @@ app.get('/api/products/low-stock', auth, (req, res) => {
   res.json(lowStockProducts);
 });
 
-// Advanced Analytics Endpoints
+// Analytics endpoints
 app.get('/api/analytics/sales-overview', auth, (req, res) => {
-  const { period = 'monthly' } = req.query; // daily, weekly, monthly, yearly
+  const { period = 'monthly' } = req.query;
   
-  const salesData = calculateSalesByPeriod(data.transactions, period);
-  const topProducts = getTopSellingProducts(data.transactions, data.products);
-  const clientStats = getClientStatistics(data.transactions, data.clients);
-  
-  res.json({
-    salesOverview: salesData,
-    topProducts,
-    clientStats,
-    summary: {
-      totalRevenue: salesData.reduce((sum, item) => sum + item.revenue, 0),
-      totalTransactions: salesData.reduce((sum, item) => sum + item.transactions, 0),
-      averageSale: calculateAverageSale(data.transactions)
-    }
-  });
-});
-
-app.get('/api/analytics/financial-reports', auth, (req, res) => {
-  const { startDate, endDate } = req.query;
-  
-  const report = generateFinancialReport(data.transactions, startDate, endDate);
-  res.json(report);
-});
-
-app.get('/api/analytics/export-report', auth, (req, res) => {
-  const { type, format = 'json' } = req.query; // type: sales, inventory, financial
-  
-  const report = generateExportReport(data, type);
-  
-  if (format === 'csv') {
-    const csv = convertToCSV(report);
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename=${type}-report-${Date.now()}.csv`);
-    return res.send(csv);
+  try {
+    const salesData = calculateSalesByPeriod(data.transactions, period);
+    const topProducts = getTopSellingProducts(data.transactions, data.products);
+    const clientStats = getClientStatistics(data.transactions, data.clients);
+    
+    res.json({
+      salesOverview: salesData,
+      topProducts,
+      clientStats,
+      summary: {
+        totalRevenue: salesData.reduce((sum, item) => sum + (item.revenue || 0), 0),
+        totalTransactions: salesData.reduce((sum, item) => sum + (item.transactions || 0), 0),
+        averageSale: calculateAverageSale(data.transactions)
+      }
+    });
+  } catch (error) {
+    console.error('Analytics error:', error);
+    res.status(500).json({ error: 'Analytics calculation failed' });
   }
-  
-  res.json(report);
 });
 
 // Helper Functions
 function calculateSalesByPeriod(transactions, period) {
   const sales = {};
-  const now = new Date();
   
   transactions.filter(t => t.type === 'sale').forEach(transaction => {
     const date = new Date(transaction.date);
@@ -784,7 +781,7 @@ function calculateSalesByPeriod(transactions, period) {
       sales[key] = { revenue: 0, transactions: 0, date: key };
     }
     
-    sales[key].revenue += transaction.paid;
+    sales[key].revenue += transaction.paid || 0;
     sales[key].transactions += 1;
   });
   
@@ -806,13 +803,13 @@ function getTopSellingProducts(transactions, products) {
       }
       
       productSales[item.productId].quantity += item.quantity;
-      productSales[item.productId].revenue += item.price * item.quantity;
+      productSales[item.productId].revenue += (item.price || 0) * item.quantity;
     });
   });
   
   return Object.values(productSales)
     .sort((a, b) => b.revenue - a.revenue)
-    .slice(0, 10); // Top 10
+    .slice(0, 10);
 }
 
 function getClientStatistics(transactions, clients) {
@@ -832,7 +829,7 @@ function getClientStatistics(transactions, clients) {
       };
     }
     
-    clientStats[clientId].totalSpent += transaction.paid;
+    clientStats[clientId].totalSpent += transaction.paid || 0;
     clientStats[clientId].transactions += 1;
     
     if (new Date(transaction.date) > new Date(clientStats[clientId].lastPurchase)) {
@@ -847,41 +844,14 @@ function calculateAverageSale(transactions) {
   const sales = transactions.filter(t => t.type === 'sale');
   if (sales.length === 0) return 0;
   
-  const totalRevenue = sales.reduce((sum, t) => sum + t.paid, 0);
+  const totalRevenue = sales.reduce((sum, t) => sum + (t.paid || 0), 0);
   return totalRevenue / sales.length;
 }
 
-function generateFinancialReport(transactions, startDate, endDate) {
-  const filteredTransactions = transactions.filter(t => {
-    const transactionDate = new Date(t.date);
-    const start = startDate ? new Date(startDate) : new Date(0);
-    const end = endDate ? new Date(endDate) : new Date();
-    return transactionDate >= start && transactionDate <= end;
-  });
-  
-  const sales = filteredTransactions.filter(t => t.type === 'sale');
-  const loanPayments = filteredTransactions.filter(t => t.type === 'loan_payment');
-  
-  return {
-    period: { startDate, endDate },
-    revenue: {
-      totalSales: sales.reduce((sum, t) => sum + t.paid, 0),
-      totalLoanPayments: loanPayments.reduce((sum, t) => sum + t.amount, 0),
-      grossRevenue: sales.reduce((sum, t) => sum + t.paid, 0) + loanPayments.reduce((sum, t) => sum + t.amount, 0)
-    },
-    transactions: {
-      totalSales: sales.length,
-      totalLoanPayments: loanPayments.length,
-      averageSaleValue: sales.length > 0 ? sales.reduce((sum, t) => sum + t.paid, 0) / sales.length : 0
-    },
-    loans: {
-      activeLoans: data.clients.filter(c => c.loan > 0).length,
-      totalOutstanding: data.clients.reduce((sum, c) => sum + c.loan, 0)
-    }
-  };
-}
+const PORT = process.env.PORT || 3000;
 
-app.listen(3000, () => {
-  console.log('✅ Server running on http://localhost:3000');
-  console.log('💾 Data will be saved in: ' + path.resolve(DATA_FILE));
+app.listen(PORT, () => {
+  console.log('✅ Server running on port', PORT);
+  console.log('💾 Data file:', DATA_FILE);
+  console.log('🔐 Default login: ADMIN / ADMIN123');
 });
